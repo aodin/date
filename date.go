@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// DateLayout uses ISO 8601 as a default for parsing and rendering
-const DateLayout = "2006-01-02"
+// ISO8601Date uses ISO 8601 as a default for parsing and rendering
+const ISO8601Date = "2006-01-02"
 
 type Date struct{ time.Time }
 
 func (date Date) format() string {
-	return date.Time.Format(DateLayout)
+	return date.Time.Format(ISO8601Date)
 }
 
 // AddDays adds the given number of days to the date
@@ -47,7 +47,7 @@ func (d *Date) UnmarshalJSON(text []byte) error {
 	if err := dec.Decode(&s); err != nil {
 		return err
 	}
-	value, err := time.Parse(DateLayout, s)
+	value, err := time.Parse(ISO8601Date, s)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func New(year int, month time.Month, day int) Date {
 
 // Parse converts a ISO 8601 date string to a Date, possibly returning an error
 func Parse(value string) (Date, error) {
-	return ParseUsingLayout(DateLayout, value)
+	return ParseUsingLayout(ISO8601Date, value)
 }
 
 // ParseUsingLayout calls Parse with a different date layout
