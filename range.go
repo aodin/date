@@ -58,6 +58,17 @@ func (term Range) IsZero() bool {
 	return term.Start.IsZero() && term.End.IsZero()
 }
 
+// Days returns the number of days in the range
+// zero will be returned for infinity TODO or -1
+func (term Range) Days() int {
+	// Set timezones both to UTC to avoid issues of daylight savings
+	if term.Start.IsZero() || term.End.IsZero() {
+		return 0
+	}
+	// A single day range includes itself
+	return int(term.End.UTC().Sub(term.Start.UTC()).Hours()/24) + 1
+}
+
 func isEmptyRange(value string) bool {
 	return strings.ToLower(value) == "empty"
 }

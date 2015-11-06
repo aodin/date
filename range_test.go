@@ -24,6 +24,14 @@ func TestRange_Contains(t *testing.T) {
 	assert.True(t, dec.DoesNotContain(year2015))
 }
 
+func TestRange_Days(t *testing.T) {
+	assert.Equal(t, 0, Empty().Days())
+	assert.Equal(t, 1, OnlyToday().Days())
+	assert.Equal(t, 365, EntireYear(2015).Days())
+	assert.Equal(t, 366, EntireYear(2016).Days())
+	assert.Equal(t, 29, EntireMonth(2016, 2).Days())
+}
+
 func TestRange_Error(t *testing.T) {
 	assert.Nil(t, Never().Error())
 
