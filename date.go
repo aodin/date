@@ -41,6 +41,9 @@ func (date Date) Equals(other Date) bool {
 
 // UnmarshalJSON converts a byte array into a Date
 func (d *Date) UnmarshalJSON(text []byte) error {
+	if string(text) == "null" {
+		return nil
+	}
 	b := bytes.NewBuffer(text)
 	dec := json.NewDecoder(b)
 	var s string
@@ -55,8 +58,12 @@ func (d *Date) UnmarshalJSON(text []byte) error {
 	return nil
 }
 
-// MarshalJSON returns the JSON output of a Date
+// MarshalJSON returns the JSON output of a Date.
+// Null will return a zero value date.
 func (d Date) MarshalJSON() ([]byte, error) {
+	if d.IsZero() {
+		return []byte("null"), nil
+	}
 	return []byte(`"` + d.format() + `"`), nil
 }
 

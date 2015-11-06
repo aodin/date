@@ -2,6 +2,7 @@ package date
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -158,6 +159,23 @@ func (term DateRange) Intersection(other DateRange) (intersect DateRange) {
 		return
 	}
 	return
+}
+
+// MarshalJSON returns the JSON output of a DateRange.
+// Empty ranges will return null
+func (term DateRange) MarshalJSON() ([]byte, error) {
+	if term.IsEmpty() {
+		return []byte("null"), nil
+	}
+	start, err := json.Marshal(term.Start)
+	if err != nil {
+		return nil, err
+	}
+	end, err := json.Marshal(term.End)
+	if err != nil {
+		return nil, err
+	}
+	return []byte(fmt.Sprintf(`{"start":%s,"end":%s}`, start, end)), nil
 }
 
 // Union creates the union of two DateRange types. If there is a gap

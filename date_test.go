@@ -16,6 +16,12 @@ func TestDate(t *testing.T) {
 	assert.Nil(t, err, "JSON marshaling of dates should not error")
 	assert.Equal(t, []byte(`"2015-03-01"`), output)
 
+	// Zero dates should return null
+	var zero Date
+	output, err = json.Marshal(zero)
+	assert.Nil(t, err, "JSON marshaling of zero dates should not error")
+	assert.Equal(t, []byte("null"), output)
+
 	nextDay := New(2015, 3, 2)
 	assert.True(t, nextDay.Equals(day.AddDays(1)))
 
@@ -23,10 +29,14 @@ func TestDate(t *testing.T) {
 	assert.Nil(t, err, "Parsing of properly formatted dates should not error")
 	assert.True(t, parsed.Equals(day))
 
-	err = day.UnmarshalJSON([]byte(`"2015-03-01"`))
 	assert.Nil(
-		t, err, "UnmarshalJSON of a valid slice of bytes should not error",
+		t, day.UnmarshalJSON([]byte(`"2015-03-01"`)),
+		"UnmarshalJSON of a valid slice of bytes should not error",
 	)
+
+	// Parsing null should return a zero date
+	assert.Nil(t, zero.UnmarshalJSON([]byte("null")))
+	assert.True(t, zero.IsZero())
 
 	jan1 := time.Date(2015, 1, 1, 0, 0, 0, 0, time.UTC)
 	assert.True(t, jan1.Before(day.Time))

@@ -1,6 +1,7 @@
 package date
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,6 +45,18 @@ func TestDateRange_Intersection(t *testing.T) {
 	assert.Equal(t, New(2015, 11, 30), intersection.End)
 }
 
+func TestDateRange_Marshal(t *testing.T) {
+	// Empty ranges should render as null
+	b, err := json.Marshal(Never())
+	assert.Nil(t, err)
+	assert.Equal(t, "null", string(b))
+
+	// Infinite ranges should render as null start and end dates
+	b, err = json.Marshal(Infinity())
+	assert.Nil(t, err)
+	assert.Equal(t, `{"start":null,"end":null}`, string(b))
+}
+
 func TestDateRange_Union(t *testing.T) {
 	year2015 := EntireYear(2015)
 	jan := EntireMonth(2016, 1)
@@ -56,4 +69,18 @@ func TestDateRange_Union(t *testing.T) {
 	union = jan.Union(feb)
 	assert.Equal(t, feb.End, union.End)
 	assert.Equal(t, jan.Start, union.Start)
+}
+
+func TestDateRange_Unmarshal(t *testing.T) {
+	raw := `{"start":"2015-03-01","end":null}`
+	var open DateRange
+	assert.Nil(t, json.Unmarshal([]byte(raw), &open))
+	assert.Equal(t, New(2015, 3, 1), open.Start)
+	assert.True(t, open.End.IsZero())
+
+	// TODO nulls should be unmarshaled as empty ranges
+	// raw = `null`
+	// var zero DateRange
+	// assert.Nil(t, json.Unmarshal([]byte(raw), &zero))
+	// assert.True(t, zero.IsEmpty())
 }
