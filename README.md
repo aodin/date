@@ -14,20 +14,21 @@ func main() {
 }
 ```
 
-Parse a date:
+Parse a date or build it from a time:
 
 ```go
-Parse("2015-03-01")
+date.Parse("2015-03-01")
+date.FromTime(time.Now())
 ```
 
-Range operations:
+Ranges, including `Union` and `Intersection` operations:
 
 ```go
-Range(Today(), Today.AddDays(1)).Intersection(Today())
+date.NewRange(date.Today(), date.Today().AddDays(7))
 ```
 
 ```go
-EntireMonth().Union(EntireYear())
+date.EntireYear(2014).Union(date.EntireYear(2015))
 ```
 
 By default, the `Date` type uses the `time.UTC` location. It can be passed to functions requiring the `time.Time` type using the embedded `Time` field:
