@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// DateRange is a start and end date
-type DateRange struct {
+// Range is a start and end date
+type Range struct {
 	Start   Date `json:"start"`
 	End     Date `json:"end"`
 	isEmpty bool
@@ -17,22 +17,22 @@ type DateRange struct {
 
 // Contains returns true if the given range is entirely within the
 // the range - inclusive
-func (term DateRange) Contains(other DateRange) bool {
+func (term Range) Contains(other Range) bool {
 	return !term.DoesNotContain(other)
 }
 
-func (term DateRange) DoesNotContain(other DateRange) bool {
+func (term Range) DoesNotContain(other Range) bool {
 	return other.Start.Before(term.Start) || other.End.After(term.End)
 }
 
 // Equals returns true if the term has equal start and end dates
-func (term DateRange) Equals(other DateRange) bool {
+func (term Range) Equals(other Range) bool {
 	return term.isEmpty == other.isEmpty && term.Start.Equals(other.Start) && term.End.Equals(other.End)
 }
 
 // Error returns an error if there is both a start and end date and the given
 // start date is not before the end date.
-func (term DateRange) Error() error {
+func (term Range) Error() error {
 	if term.IsZero() {
 		return nil
 	}
@@ -44,26 +44,26 @@ func (term DateRange) Error() error {
 }
 
 // IsInfinity is an alias for IsZero
-func (term DateRange) IsInfinity() bool {
+func (term Range) IsInfinity() bool {
 	return term.IsZero()
 }
 
 // IsEmpty returns true if the term is zero and has isEmpty = true
-func (term DateRange) IsEmpty() bool {
+func (term Range) IsEmpty() bool {
 	return term.isEmpty && term.IsZero()
 }
 
 // IsZero returns true if the start and end dates are both zero
-func (term DateRange) IsZero() bool {
+func (term Range) IsZero() bool {
 	return term.Start.IsZero() && term.End.IsZero()
 }
 
-func isEmptyDateRange(value string) bool {
+func isEmptyRange(value string) bool {
 	return strings.ToLower(value) == "empty"
 }
 
-// splitDateRange divides a term into start and end date strings
-func splitDateRange(value string) (string, string, error) {
+// splitRange divides a term into start and end date strings
+func splitRange(value string) (string, string, error) {
 	p := strings.SplitN(value, ",", 2)
 	if len(p) != 2 || p[0] == "" || p[1] == "" {
 		return "", "", fmt.Errorf("date: failed to parse date range '%s'", value)
@@ -71,9 +71,9 @@ func splitDateRange(value string) (string, string, error) {
 	return strings.ToLower(p[0][1:]), strings.ToLower(p[1][:len(p[1])-1]), nil
 }
 
-// Scan converts the given database value to a DateRange,
+// Scan converts the given database value to a Range,
 // possibly returning an error if the conversion failed
-func (term *DateRange) Scan(value interface{}) error {
+func (term *Range) Scan(value interface{}) error {
 	if value == nil {
 		return nil
 	}
@@ -84,13 +84,13 @@ func (term *DateRange) Scan(value interface{}) error {
 	}
 
 	// Zero ranges return "empty"
-	if isEmptyDateRange(string(b)) {
+	if isEmptyRange(string(b)) {
 		term.isEmpty = true
 		return nil
 	}
 
 	// Otherwise, parse the given SQL date range
-	start, end, err := splitDateRange(string(b))
+	start, end, err := splitRange(string(b))
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (term *DateRange) Scan(value interface{}) error {
 }
 
 // String returns a string representation of the date range
-func (term DateRange) String() string {
+func (term Range) String() string {
 	if term.IsZero() {
 		return "forever"
 	}
@@ -134,7 +134,7 @@ func (term DateRange) String() string {
 	return fmt.Sprintf("%s to %s", term.Start, term.End)
 }
 
-func (term DateRange) Intersection(other DateRange) (intersect DateRange) {
+func (term Range) Intersection(other Range) (intersect Range) {
 	// If either range is empty then the intersection is empty
 	if term.IsEmpty() || other.IsEmpty() {
 		intersect.isEmpty = true
@@ -161,9 +161,9 @@ func (term DateRange) Intersection(other DateRange) (intersect DateRange) {
 	return
 }
 
-// MarshalJSON returns the JSON output of a DateRange.
+// MarshalJSON returns the JSON output of a Range.
 // Empty ranges will return null
-func (term DateRange) MarshalJSON() ([]byte, error) {
+func (term Range) MarshalJSON() ([]byte, error) {
 	if term.IsEmpty() {
 		return []byte("null"), nil
 	}
@@ -178,9 +178,9 @@ func (term DateRange) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(`{"start":%s,"end":%s}`, start, end)), nil
 }
 
-// Union creates the union of two DateRange types. If there is a gap
+// Union creates the union of two Range types. If there is a gap
 // between the two range it is included.
-func (term DateRange) Union(other DateRange) (union DateRange) {
+func (term Range) Union(other Range) (union Range) {
 	if term.Start.Before(other.Start) {
 		union.Start = term.Start
 	} else {
@@ -195,7 +195,7 @@ func (term DateRange) Union(other DateRange) (union DateRange) {
 }
 
 // Value prepares the nullable term for the database
-func (term DateRange) Value() (driver.Value, error) {
+func (term Range) Value() (driver.Value, error) {
 	if term.IsZero() {
 		return "[,]", nil
 	}
@@ -208,57 +208,59 @@ func (term DateRange) Value() (driver.Value, error) {
 	return fmt.Sprintf("['%s','%s']", term.Start, term.End), nil
 }
 
-// Empty creates an empty DateRange
-func Empty() (term DateRange) {
+// Empty creates an empty Range
+func Empty() (term Range) {
 	term.isEmpty = true
 	return
 }
 
-// Forever creates a DateRange without a start or end date
-func Forever() (term DateRange) {
+// Forever creates a Range without a start or end date
+func Forever() (term Range) {
 	return
 }
 
 // Infinity is an alias for Forever
-func Infinity() DateRange {
+func Infinity() Range {
 	return Forever()
 }
 
 // Never is an alias for Empty
-func Never() DateRange {
+func Never() Range {
 	return Empty()
 }
 
-// Range creates a DateRange with the given start and end dates
-func Range(start, end Date) (term DateRange) {
+// NewRange creates a Range with the given start and end dates
+func NewRange(start, end Date) (term Range) {
 	term.Start = start
 	term.End = end
 	return
 }
 
-// EntireMonth creates a DateRange that includes the entire month
-func EntireMonth(year int, month time.Month) DateRange {
+// EntireMonth creates a Range that includes the entire month
+func EntireMonth(year int, month time.Month) (term Range) {
 	first := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
-	last := first.AddDate(0, 1, -1)
-	return Range(New(first.Date()), New(last.Date()))
+	term.End = FromTime(first.AddDate(0, 1, -1))
+	term.Start = FromTime(first)
+	return
 }
 
-// EntireYear creates a DateRange that includes the entire year
-func EntireYear(year int) DateRange {
+// EntireYear creates a Range that includes the entire year
+func EntireYear(year int) (term Range) {
 	first := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
-	last := first.AddDate(1, 0, -1)
-	return Range(New(first.Date()), New(last.Date()))
+	term.End = FromTime(first.AddDate(1, 0, -1))
+	term.Start = FromTime(first)
+	return
 }
 
-func SingleDay(date Date) DateRange {
-	return Range(date, date)
+func SingleDay(date Date) Range {
+	return NewRange(date, date)
 }
 
-func OnlyToday() DateRange {
+func OnlyToday() Range {
 	return SingleDay(Today())
 }
 
-func StartBoundedRange(start Date) (term DateRange) {
+func StartBoundedRange(start Date) (term Range) {
 	term.Start = start
 	return
 }

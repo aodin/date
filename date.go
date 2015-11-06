@@ -78,8 +78,8 @@ func (date Date) Value() (driver.Value, error) {
 	return date.format(), nil
 }
 
-// Within returns true if the Date is within the range - inclusive
-func (date Date) Within(term DateRange) bool {
+// Within returns true if the Date is within the Range - inclusive
+func (date Date) Within(term Range) bool {
 	return !(date.Before(term.Start) || date.After(term.End))
 }
 
@@ -90,7 +90,7 @@ func Today() Date {
 
 // FromTime creates a Date from a time.Time
 func FromTime(t time.Time) Date {
-	return New(t.Year(), t.Month(), t.Day())
+	return New(t.Date())
 }
 
 // New creates a new Date
