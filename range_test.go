@@ -35,6 +35,13 @@ func TestRange_Days(t *testing.T) {
 func TestRange_Error(t *testing.T) {
 	assert.Nil(t, Never().Error())
 
+	// Unbounded ranges are allowed
+	end := Range{End: New(2015, 3, 1)}
+	assert.Nil(t, end.Error(), "Unbounded start dates should not error")
+
+	start := Range{Start: New(2015, 3, 1)}
+	assert.Nil(t, start.Error(), "Unbounded end dates should not error")
+
 	var invalid Range
 	invalid.Start = New(2015, 3, 2)
 	invalid.End = New(2015, 3, 1)

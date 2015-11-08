@@ -33,7 +33,7 @@ func (term Range) Equals(other Range) bool {
 // Error returns an error if there is both a start and end date and the given
 // start date is not before the end date.
 func (term Range) Error() error {
-	if term.IsZero() {
+	if term.Start.IsZero() || term.End.IsZero() {
 		return nil
 	}
 	// One day only is allowed
