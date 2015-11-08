@@ -167,7 +167,9 @@ func (term Range) Intersection(other Range) (intersect Range) {
 	if other.Start.Within(term) {
 		intersect.Start = other.Start
 	} else if term.Start.Within(other) {
-		intersect.End = term.Start
+		intersect.Start = term.Start
+	} else if term.Start.IsZero() && other.Start.IsZero() {
+		// Unbounded
 	} else {
 		intersect = Empty()
 		return
@@ -177,6 +179,8 @@ func (term Range) Intersection(other Range) (intersect Range) {
 		intersect.End = other.End
 	} else if term.End.Within(other) {
 		intersect.End = term.End
+	} else if term.End.IsZero() && other.End.IsZero() {
+		// Unbounded
 	} else {
 		intersect = Empty()
 		return
@@ -204,12 +208,24 @@ func (term Range) MarshalJSON() ([]byte, error) {
 // Union creates the union of two Range types. If there is a gap
 // between the two range it is included.
 func (term Range) Union(other Range) (union Range) {
-	if term.Start.Before(other.Start) {
+	if term.IsEmpty() && other.IsEmpty() {
+		union = Empty()
+		return
+	}
+	if !term.IsEmpty() && term.Start.IsZero() {
+		// Unbounded
+	} else if !other.IsEmpty() && other.Start.IsZero() {
+		// Unbounded
+	} else if term.Start.Before(other.Start) {
 		union.Start = term.Start
 	} else {
 		union.Start = other.Start
 	}
-	if term.End.After(other.End) {
+	if !term.IsEmpty() && term.End.IsZero() {
+		// Unbounded
+	} else if !other.IsEmpty() && other.End.IsZero() {
+		// Unbounded
+	} else if term.End.After(other.End) {
 		union.End = term.End
 	} else {
 		union.End = other.End

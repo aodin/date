@@ -20,12 +20,18 @@ func TestRange_Contains(t *testing.T) {
 	year2015 := EntireYear(2015)
 	dec := EntireMonth(2015, 12)
 	novOnward := Range{Start: New(2015, 11, 1)}
+	decOnward := Range{Start: New(2015, 12, 1)}
 
 	assert.True(t, year2015.Contains(dec))
 	assert.True(t, dec.DoesNotContain(year2015))
 
 	assert.True(t, novOnward.Contains(dec))
 	assert.False(t, year2015.Contains(novOnward))
+
+	assert.True(t, novOnward.Contains(novOnward))
+
+	assert.True(t, novOnward.Contains(decOnward))
+	assert.False(t, decOnward.Contains(novOnward))
 }
 
 func TestRange_Days(t *testing.T) {
@@ -56,18 +62,19 @@ func TestRange_Intersection(t *testing.T) {
 	year2015 := EntireYear(2015)
 	nov := EntireMonth(2015, 11)
 	dec := EntireMonth(2015, 12)
-	nov1 := New(2015, 11, 1)
-	nov30 := New(2015, 11, 30)
-	novOnward := Range{Start: New(2015, 11, 1)}
+	novOnward := Range{Start: nov.Start}
+	decOnward := Range{Start: dec.Start}
+	untilDec := Range{End: nov.End}
 	empty := Empty()
 
 	assert.True(t, empty.Intersection(nov).IsZero())
 	assert.Equal(t, dec, novOnward.Intersection(dec))
 
-	intersection := year2015.Intersection(nov)
-	assert.Equal(t, nov1, intersection.Start)
-	assert.Equal(t, nov30, intersection.End)
-	assert.True(t, NewRange(nov1, nov30).Equals(intersection))
+	assert.Equal(t, nov, year2015.Intersection(nov))
+
+	assert.Equal(t, decOnward, decOnward.Intersection(novOnward))
+	assert.Equal(t, decOnward, novOnward.Intersection(decOnward))
+	assert.Equal(t, nov, novOnward.Intersection(untilDec))
 }
 
 func TestRange_Overlaps(t *testing.T) {
@@ -114,6 +121,19 @@ func TestRange_Union(t *testing.T) {
 	union = jan.Union(feb)
 	assert.Equal(t, feb.End, union.End)
 	assert.Equal(t, jan.Start, union.Start)
+
+	nov := EntireMonth(2015, 11)
+	dec := EntireMonth(2015, 12)
+	novOnward := Range{Start: nov.Start}
+	decOnward := Range{Start: dec.Start}
+	untilDec := Range{End: nov.End}
+
+	assert.Equal(t, novOnward, decOnward.Union(novOnward))
+	assert.Equal(t, Forever(), untilDec.Union(decOnward))
+
+	assert.Equal(t, Empty(), Empty().Union(Empty()))
+	assert.Equal(t, Forever(), Empty().Union(Forever()))
+	assert.Equal(t, Forever(), Forever().Union(Empty()))
 }
 
 func TestRange_Unmarshal(t *testing.T) {
