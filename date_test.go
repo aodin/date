@@ -44,6 +44,7 @@ func TestDate(t *testing.T) {
 
 func TestDate_Within(t *testing.T) {
 	march1 := New(2015, 3, 1)
+	dec1 := New(2015, 12, 1)
 
 	feb := EntireMonth(2015, 2)
 	march := EntireMonth(2015, 3)
@@ -51,4 +52,14 @@ func TestDate_Within(t *testing.T) {
 	assert.False(t, march1.Within(feb))
 	assert.Equal(t, march1, march.Start)
 	assert.True(t, march1.Within(march))
+
+	// Test unbounded ranges
+	novOnward := Range{Start: New(2015, 11, 1)}
+	beforeNov := Range{End: New(2015, 10, 31)}
+
+	assert.True(t, dec1.Within(novOnward))
+	assert.False(t, dec1.Within(beforeNov))
+
+	assert.True(t, march1.Within(beforeNov))
+	assert.False(t, march1.Within(novOnward))
 }

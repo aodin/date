@@ -80,7 +80,18 @@ func (date Date) Value() (driver.Value, error) {
 
 // Within returns true if the Date is within the Range - inclusive
 func (date Date) Within(term Range) bool {
-	return !(date.Before(term.Start) || date.After(term.End))
+	// Empty terms contain nothing
+	if term.IsEmpty() {
+		return false
+	}
+	// Only check if the range is bounded
+	if !term.Start.IsZero() && date.Before(term.Start) {
+		return false
+	}
+	if !term.End.IsZero() && date.After(term.End) {
+		return false
+	}
+	return true
 }
 
 // Today converts the local time to a Date

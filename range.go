@@ -145,10 +145,18 @@ func (term Range) String() string {
 	return fmt.Sprintf("%s to %s", term.Start, term.End)
 }
 
+// Overlaps returns true if the given range has at least one day
+// in common with the range
+func (term Range) Overlaps(other Range) bool {
+	return !term.Intersection(other).IsEmpty()
+}
+
+// Intersection returns a new range consisting of the days the given
+// ranges have in common
 func (term Range) Intersection(other Range) (intersect Range) {
 	// If either range is empty then the intersection is empty
 	if term.IsEmpty() || other.IsEmpty() {
-		intersect.isEmpty = true
+		intersect = Empty()
 		return
 	}
 
@@ -157,7 +165,7 @@ func (term Range) Intersection(other Range) (intersect Range) {
 	} else if term.Start.Within(other) {
 		intersect.End = term.Start
 	} else {
-		intersect.isEmpty = true
+		intersect = Empty()
 		return
 	}
 
@@ -166,7 +174,7 @@ func (term Range) Intersection(other Range) (intersect Range) {
 	} else if term.End.Within(other) {
 		intersect.End = term.End
 	} else {
-		intersect.isEmpty = true
+		intersect = Empty()
 		return
 	}
 	return

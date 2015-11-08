@@ -51,16 +51,31 @@ func TestRange_Error(t *testing.T) {
 func TestRange_Intersection(t *testing.T) {
 	year2015 := EntireYear(2015)
 	nov := EntireMonth(2015, 11)
+	dec := EntireMonth(2015, 12)
 	nov1 := New(2015, 11, 1)
 	nov30 := New(2015, 11, 30)
-	var zero Range
+	novOnward := Range{Start: New(2015, 11, 1)}
+	empty := Empty()
 
-	assert.True(t, zero.Intersection(nov).IsZero())
+	assert.True(t, empty.Intersection(nov).IsZero())
+	assert.Equal(t, dec, novOnward.Intersection(dec))
 
 	intersection := year2015.Intersection(nov)
 	assert.Equal(t, nov1, intersection.Start)
 	assert.Equal(t, nov30, intersection.End)
 	assert.True(t, NewRange(nov1, nov30).Equals(intersection))
+}
+
+func TestRange_Overlaps(t *testing.T) {
+	year2015 := EntireYear(2015)
+	nov := EntireMonth(2015, 11)
+	dec := EntireMonth(2015, 12)
+	novOnward := Range{Start: New(2015, 11, 1)}
+
+	assert.False(t, nov.Overlaps(dec))
+	assert.True(t, dec.Overlaps(year2015))
+	assert.True(t, nov.Overlaps(SingleDay(New(2015, 11, 30))))
+	assert.True(t, novOnward.Overlaps(dec))
 }
 
 func TestRange_Marshal(t *testing.T) {
