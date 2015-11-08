@@ -86,6 +86,7 @@ func splitRange(value string) (string, string, error) {
 // possibly returning an error if the conversion failed
 func (term *Range) Scan(value interface{}) error {
 	if value == nil {
+		term.isEmpty = true // NULL should be an empty term
 		return nil
 	}
 
@@ -133,6 +134,9 @@ func (term *Range) Scan(value interface{}) error {
 
 // String returns a string representation of the date range
 func (term Range) String() string {
+	if term.IsEmpty() {
+		return "never"
+	}
 	if term.IsZero() {
 		return "forever"
 	}

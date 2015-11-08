@@ -90,6 +90,14 @@ func TestRange_Marshal(t *testing.T) {
 	assert.Equal(t, `{"start":null,"end":null}`, string(b))
 }
 
+func TestRange_String(t *testing.T) {
+	assert.Equal(t, "never", Never().String())
+	assert.Equal(t, "forever", Forever().String())
+	assert.Equal(t, "2016-02-01 to 2016-02-29", EntireMonth(2016, 2).String())
+	assert.Equal(t, "until 2016-02-29", Range{End: New(2016, 2, 29)}.String())
+	assert.Equal(t, "2016-02-01 onward", Range{Start: New(2016, 2, 1)}.String())
+}
+
 func TestRange_Union(t *testing.T) {
 	year2015 := EntireYear(2015)
 	jan := EntireMonth(2016, 1)
