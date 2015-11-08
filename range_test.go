@@ -19,9 +19,13 @@ func TestRange(t *testing.T) {
 func TestRange_Contains(t *testing.T) {
 	year2015 := EntireYear(2015)
 	dec := EntireMonth(2015, 12)
+	novOnward := Range{Start: New(2015, 11, 1)}
 
 	assert.True(t, year2015.Contains(dec))
 	assert.True(t, dec.DoesNotContain(year2015))
+
+	assert.True(t, novOnward.Contains(dec))
+	assert.False(t, year2015.Contains(novOnward))
 }
 
 func TestRange_Days(t *testing.T) {

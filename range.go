@@ -18,16 +18,16 @@ type Range struct {
 // Contains returns true if the given range is entirely within the
 // the range - inclusive
 func (term Range) Contains(other Range) bool {
-	return !term.DoesNotContain(other)
+	return term.Intersection(other).Equals(other)
 }
 
 func (term Range) DoesNotContain(other Range) bool {
-	return other.Start.Before(term.Start) || other.End.After(term.End)
+	return !term.Contains(other)
 }
 
 // Equals returns true if the term has equal start and end dates
 func (term Range) Equals(other Range) bool {
-	return term.isEmpty == other.isEmpty && term.Start.Equals(other.Start) && term.End.Equals(other.End)
+	return term == other
 }
 
 // Error returns an error if there is both a start and end date and the given
