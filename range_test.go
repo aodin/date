@@ -137,8 +137,10 @@ func TestRange_Union(t *testing.T) {
 }
 
 func TestRange_Unmarshal(t *testing.T) {
+	// Unmarshaling should overwrite values
+	open := EntireMonth(2015, 2)
+
 	raw := `{"start":"2015-03-01","end":null}`
-	var open Range
 	assert.Nil(t, json.Unmarshal([]byte(raw), &open))
 	assert.Equal(t, New(2015, 3, 1), open.Start)
 	assert.True(t, open.End.IsZero())
