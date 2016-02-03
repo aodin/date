@@ -1,7 +1,7 @@
-# date
+# date [![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/aodin/date)
 Golang's missing date package, including ranges
 
-Date builds on Golang's `time.Time` package to provide a ISO 8601 Date type
+Date builds on Golang's `time.Time` package to provide a [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) Date type
 
 Create a new `Date`:
 
@@ -40,4 +40,4 @@ jan1.Before(march1.Time)
 
 Happy Hacking!
 
-aodin, 2015
+aodin, 2015-2016
