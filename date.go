@@ -16,15 +16,25 @@ func (date Date) format() string {
 	return date.Time.Format(ISO8601Date)
 }
 
-// AddDays adds the given number of days to the date
-func (date Date) AddDays(days int) Date {
-	return Date{Time: date.Time.AddDate(0, 0, days)}
+// AddDate adds any number of years, months, and days to the date.
+// It proxies to the embedded time.Time, but returns a Date
+func (date Date) AddDate(years, months, days int) Date {
+	return Date{Time: date.Time.AddDate(years, months, days)}
 }
 
+// AddDays adds the given number of days to the date
+func (date Date) AddDays(days int) Date {
+	return date.AddDate(0, 0, days)
+}
+
+// After returns true if the given date is after (and not equal) to
+// the current date
 func (date Date) After(other Date) bool {
 	return date.Time.After(other.Time)
 }
 
+// Before returns true if the given date is before (and not equal)
+// to the current date
 func (date Date) Before(other Date) bool {
 	return date.Time.Before(other.Time)
 }
@@ -40,11 +50,11 @@ func (date Date) Equals(other Date) bool {
 }
 
 // UnmarshalJSON converts a byte array into a Date
-func (d *Date) UnmarshalJSON(text []byte) error {
+func (date *Date) UnmarshalJSON(text []byte) error {
 	if string(text) == "null" {
 		// Nulls are converted to zero times
 		var zero Date
-		*d = zero
+		*date = zero
 		return nil
 	}
 	b := bytes.NewBuffer(text)
@@ -57,17 +67,17 @@ func (d *Date) UnmarshalJSON(text []byte) error {
 	if err != nil {
 		return err
 	}
-	d.Time = value
+	date.Time = value
 	return nil
 }
 
 // MarshalJSON returns the JSON output of a Date.
 // Null will return a zero value date.
-func (d Date) MarshalJSON() ([]byte, error) {
-	if d.IsZero() {
+func (date Date) MarshalJSON() ([]byte, error) {
+	if date.IsZero() {
 		return []byte("null"), nil
 	}
-	return []byte(`"` + d.format() + `"`), nil
+	return []byte(`"` + date.format() + `"`), nil
 }
 
 // Scan converts an SQL value into a Date

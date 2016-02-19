@@ -61,6 +61,21 @@ func TestDate(t *testing.T) {
 	}
 }
 
+func TestDate_AddDate(t *testing.T) {
+	feb1 := New(2016, 2, 1)
+	if feb1.AddDate(0, 1, 0) != New(2016, 3, 1) {
+		t.Error("February 1st plus one month should be March 1st")
+	}
+
+	if feb1.AddDate(0, 1, -1) != New(2016, 2, 29) {
+		t.Error("February 1st plus one month and minus one day should be February 29th (in 2016)")
+	}
+
+	if feb1.AddDate(1, -1, 0) != New(2017, 1, 1) {
+		t.Errorf("February 1st plus one year and minus one month should be January 1st, 2017")
+	}
+}
+
 func TestDate_Within(t *testing.T) {
 	march1 := New(2015, 3, 1)
 	dec1 := New(2015, 12, 1)
